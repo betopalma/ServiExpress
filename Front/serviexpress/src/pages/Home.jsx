@@ -84,7 +84,6 @@ export default function Home() {
   };
 
   useEffect(() => {
-    console.log('Render en Home[muchos]')
     dispatch(getUsers());
     if (!Object.keys(user).length && sendLogin) {
       dispatch(getUser());
