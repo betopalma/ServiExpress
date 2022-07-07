@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import StylesCard from "./CardPublication.module.scss";
 
 
-const CardPublications = ({ id, summary, album, title, price, userId }) => {
+const CardPublications = ({ id, summary, album, title, price, userId, favorite }) => {
 const dispatch = useDispatch()
 
 const users = useSelector((state) => state.users);
@@ -24,6 +24,7 @@ const score = user.seller_reputation
 const [checked, setChecked] = useState(false);
 const [msgAlert, setMsg] = useState("");
 const heartChange = (event) => {
+  console.log('heartChange')
   setChecked(event.target.checked);
 };
 const favClicked = () => {   
@@ -45,6 +46,7 @@ if(totalStar>=5)totalStar=5
   for (let i = 0; i < totalStar; i++) {
     scoreStarTotal.push(i);
   };
+
 
   useEffect (()=>{
     if (rdcr_isAuth && favorites.publications)
@@ -93,8 +95,7 @@ if(totalStar>=5)totalStar=5
             <p className={StylesCard.titleprice}>Starting at : USD {price} </p>
             </div>
             <div className={StylesCard.like}>
-            {/* <Checkbox  icon={<FavoriteBorder/>} checkedIcon={<Favorite />} /> */}
-            <Checkbox sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}  checked={checked} icon={<FavoriteBorder />} onClick={favClicked} onChange={heartChange} disabled={!rdcr_isAuth} checkedIcon={<Favorite />} />
+            <Checkbox sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}  checked={favorite && rdcr_isAuth} icon={<FavoriteBorder />} onClick={favClicked} disabled={!rdcr_isAuth} checkedIcon={<Favorite />} />
             </div>
            </div>
           </div>

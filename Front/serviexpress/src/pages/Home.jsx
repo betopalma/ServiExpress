@@ -35,10 +35,12 @@ export default function Home() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const users = useSelector((state) => state.users)
+  const favorites = useSelector((state) => state.favorites)
   const allPublications = useSelector((state) => state.Publications).sort(function(a,b){
     if(users.find((u)=>u.id===a.userId).seller_reputation>users.find((u)=>u.id===b.userId).seller_reputation){return -1}
     if(users.find((u)=>u.id===a.userId).seller_reputation<users.find((u)=>u.id===b.userId).seller_reputation){return 1}
     return 0}) 
+  
   const PublicationsCategory = useSelector(
     (state) => state.Publications_by_categories
   );
@@ -48,15 +50,21 @@ export default function Home() {
   // console.log(allPublications);
 
   const [CurrentPage, setCurrentPage] = useState(1);
-  const [PublicationsPerPage, setPublicationsPerPage] = useState(12);
+  const [PublicationsPerPage, setPublicationsPerPage] = useState(6);
   const indexOfLastPublication = CurrentPage * PublicationsPerPage;
   const indexOfFirstPublication = indexOfLastPublication - PublicationsPerPage;
   let currentServices;
+  let pubsFav=[];
   if (allPublications.length > 0) {
     currentServices = allPublications?.slice(
       indexOfFirstPublication,
       indexOfLastPublication
     );
+    if (favorites.publications) {pubsFav = favorites.publications.map((e)=>e.id)}
+    currentServices.forEach((e,i)=>{
+      if (pubsFav.find(f=>f===e.id)) e.favorite = true;
+      else e.favorite = false;
+    })
   } else {
     currentServices = [];
   }
@@ -76,6 +84,7 @@ export default function Home() {
   };
 
   useEffect(() => {
+    console.log('Render en Home[muchos]')
     dispatch(getUsers());
     if (!Object.keys(user).length && sendLogin) {
       dispatch(getUser());
@@ -93,20 +102,23 @@ export default function Home() {
     setTimeout(() => {
       dispatch(getPublications());
     }, 1000);
-  }, [dispatch, errorLogin, navigate, sendLogin, rdcr_isAuth, user, session]);
+  }, [dispatch,errorLogin, navigate, sendLogin, rdcr_isAuth, user, session]);
+
 
   useEffect(() => {
-    setCurrentPage((pag) => (pag = 1));
+    //setCurrentPage((pag) => (pag = 1));
+    //setCurrentPage(1);
   }, [allPublications]);
 
   useEffect(() => {
-    setTimeout(() => {
+
       if (allPublications.length === 0 && PublicationsCategory.length !== 0)
         swal({
           icon: "error",
           text: "Sorry! There are no publications yet.",
         });
-    }, 1000);
+        else setCurrentPage((pag) => (pag = 1));
+
   }, [allPublications]);
 
   return (
@@ -147,7 +159,8 @@ export default function Home() {
             </div>
 
             {allPublications.length > 0 ? (
-              <section className={Styles.serviceshome}>
+                <section className={Styles.serviceshome}>
+                {console.log('mapeo current services')}
                 {currentServices?.map((e, i) => {
                   return (
                     <div>
@@ -159,6 +172,7 @@ export default function Home() {
                         summary={e.detail_resume}
                         userId={e.userId}
                         price={e.price}
+                        favorite={e.favorite}
                       />
                     </div>
                   );
